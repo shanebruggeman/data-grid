@@ -28,4 +28,12 @@ jobs:
           CI: true
 
       - name: Deploy
-        run: yarn run deploy
+        run: |
+          echo "Creating deploy commit for gh pages branch"
+          yarn run deploy
+          git checkout gh-pages
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
