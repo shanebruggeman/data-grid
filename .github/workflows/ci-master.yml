@@ -17,6 +17,7 @@ jobs:
       - name: Install
         run: |
           yarn install --pure-lockfile
+          yarn run build
 
       - name: Test
         run: yarn run test
@@ -34,6 +35,7 @@ jobs:
           BASE_BRANCH: master
           BRANCH: gh-pages
           FOLDER: dist
+          COMMIT_MESSAGE: Automated deploy to gh pages
           CLEAN: true
           SSH: true
 
