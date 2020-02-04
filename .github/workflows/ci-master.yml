@@ -30,6 +30,7 @@ jobs:
       - name: Generate Deploy
         run: |
           echo "Creating deploy commit for gh pages branch"
+          git fetch
           yarn run create-deploy
 
       - name: Push Deploy
