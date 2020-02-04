@@ -24,18 +24,5 @@ jobs:
         env:
           CI: true
 
-      - name: Install SSH Client
-        uses: webfactory/ssh-agent@v0.2.0
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Build and Deploy Repo
-        uses: JamesIves/github-pages-deploy-action@releases/v3-test
-        with:
-          BASE_BRANCH: master
-          BRANCH: gh-pages
-          FOLDER: dist
-          COMMIT_MESSAGE: Automated deploy to gh pages
-          CLEAN: true
-          SSH: true
-
+      - name: Deploy
+        run: yarn run deploy
