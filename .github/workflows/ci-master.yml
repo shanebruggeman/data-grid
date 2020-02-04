@@ -8,14 +8,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Update branches
-        run: |
-          git fetch
-
       - name: Checkout
         uses: actions/checkout@v2
         with:
           persist-credentials: false
+
+      - name: Update branches
+        run: |
+          git fetch
 
       - name: Install
         run: |
