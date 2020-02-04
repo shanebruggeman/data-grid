@@ -1,11 +1,11 @@
 {
   "name": "data-grid",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
-  "description": "Small description for data-grid goes here",
-  "repository": "",
+  "description": "A flexible way to render complex datasets in EmberJS",
+  "repository": "https://github.com/shanebruggeman/data-grid/",
   "license": "MIT",
-  "author": "",
+  "author": "Shane Bruggeman",
   "directories": {
     "doc": "doc",
     "test": "tests"
