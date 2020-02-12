@@ -8,6 +8,6 @@ module('Integration | Component | data-grid', function(hooks) {
 
     test('it renders', async function(assert) {
         await render(hbs`<DataGrid />`);
-        assert.ok(this.element.textContent.trim(), '');
+        assert.ok(this.element, 'it renders');
     });
 });

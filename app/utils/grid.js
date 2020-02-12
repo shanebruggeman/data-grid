@@ -1,3 +1,42 @@
+export class StandardTable {
+    constructor(cells, options) {
+        options = Object.assign({ columns: 1 }, options);
+
+        this._cells = cells || [];
+        this._columnCount = options.columns;
+    }
+
+    get rows() {
+        const rows = [];
+        const rowCount = Math.ceil(this._cells.length / this._columnCount);
+
+        for (let i = 0; i < rowCount; i++) {
+            const rowStart = i * this._columnCount;
+            const rowEnd = (i + 1) * this._columnCount;
+            const rowCells = this._cells.slice(rowStart, rowEnd);
+
+            rows.push(new StandardRow(rowCells));
+        }
+
+        return rows;
+    }
+
+    get columns() {
+        const columns = [];
+
+        for (let i = 0; i < this._columnCount; i++) {
+            const cells = this.rows.map(row => row.cells[i]);
+            const columnCells = cells.flat().filter(c => c);
+
+            if (columnCells.length) {
+                columns.push(new StandardColumn(columnCells));
+            }
+        }
+
+        return columns;
+    }
+}
+
 export class StandardCell {
     constructor(value) {
         this._value = value;

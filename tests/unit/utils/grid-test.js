@@ -1,6 +1,12 @@
 import { copy } from 'ember-copy';
 import { module, test } from 'qunit';
-import { StandardCell, StandardRow, StandardColumn } from 'data-grid/utils/grid';
+
+import {
+    StandardCell,
+    StandardRow,
+    StandardColumn,
+    StandardTable
+} from 'data-grid/utils/grid';
 
 module('Unit | Utility | grid', function() {
     const cellsFor = values => values.map(value => new StandardCell(value));
@@ -120,5 +126,26 @@ module('Unit | Utility | grid', function() {
         // with columns
         assert.notOk(testColumn.intersect(testColumn), 'Column does not intersect itself');
         assert.notOk(testColumn.intersect(otherColumn), 'Column does not intersect other column');
+    });
+
+    test('StandardTable | it creates a table', function (assert) {
+        const tableNoCells = new StandardTable();
+        assert.deepEqual(tableNoCells.rows, [], 'Table without cells has no rows');
+        assert.deepEqual(tableNoCells.columns, [], 'Table without cells has no columns');
+
+        const tableCells = cellsFor([1, 2, 3, 4, 5, 6, 7]);
+        const testTable = new StandardTable(tableCells, { columns: 3 });
+
+        assert.deepEqual(testTable.rows.map(r => r.cells), [
+            tableCells.slice(0, 3),
+            tableCells.slice(3, 6),
+            tableCells.slice(6, 9)
+        ], 'Table has correct rows');
+
+        assert.deepEqual(testTable.columns.map(c => c.cells), [
+            [tableCells[0], tableCells[3], tableCells[6]],
+            [tableCells[1], tableCells[4]],
+            [tableCells[2], tableCells[5]],
+        ], 'Table has correct columns')
     });
 });
