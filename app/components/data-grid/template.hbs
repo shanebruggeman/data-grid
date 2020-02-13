@@ -1,0 +1,11 @@
+<div class="data-grid">
+    <button class="change-data" type="button" {{on "click" this.changeData}}>Change data</button>
+
+    <div class="grid-table">
+        {{#each this.cells as |cell|}}
+            <div class="cell cell-{{cell.id}}">
+                <span class="cell-value">{{cell.value}}</span>
+            </div>
+        {{/each}}
+    </div>
+</div>
