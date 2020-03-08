@@ -1,8 +1,14 @@
 <div class="data-grid">
     <button class="change-data" type="button" {{on "click" this.changeData}}>Change data</button>
-    <button class="load-data" type="button" {{on "click" this.loadData}}>Load data</button>
+    <button class="load-data" type="button" {{on "click" this.loadSports}}>Load data</button>
 
     <div class="grid-table">
+        {{#each this.headerCells as |headerCell|}}
+            <div class="cell cell-{{headerCell.id}}">
+                <span class="cell-value">{{headerCell.id}}</span>
+            </div>
+        {{/each}}
+
         {{#each this.cells as |cell|}}
             <div class="cell cell-{{cell.id}}">
                 <span class="cell-value">{{cell.value}}</span>

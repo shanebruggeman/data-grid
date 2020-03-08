@@ -1,9 +1,6 @@
-import Service from '@ember/service';
-
 export class ApiEndpoint {
-    constructor({ url, environmentVariables, queryParamsConfig }) {
+    constructor({ url, queryParamsConfig }) {
         this.url = url;
-        this.environmentVariables = environmentVariables;
         this.queryParamsConfig = queryParamsConfig;
     }
 
@@ -14,6 +11,15 @@ export class ApiEndpoint {
         return key in lookupVariables ? lookupVariables[key] :
                key in environmentVariables ? environmentVariables[key] :
                null;
+    }
+
+    buildRequestUrl(dynamicSegments, queryParams) {
+        const url = this.url;
+        const dynamicUrl = this.buildDynamicUrl(url, dynamicSegments);
+        const paramStrings = this.buildQueryParams(queryParams, this.queryParamsConfig);
+        const builtQueryParams = paramStrings.length ? `?${paramStrings.join()}` : '';
+
+        return `${dynamicUrl}${builtQueryParams}`;
     }
 
     buildDynamicUrl(url, dynamicSegments) {
@@ -30,7 +36,7 @@ export class ApiEndpoint {
                     substitutionValue
                 );
             } else {
-                throw new Error('Required dynamic segment was not specified')
+                throw new Error(`Required dynamic segment ${key} was not specified`);
             }
         }
 
@@ -51,24 +57,27 @@ export class ApiEndpoint {
     }
 
     request({ method = 'get', dynamicSegments, queryParams, body } = {}) {
-        const dynamicUrl = this.buildDynamicUrl(this.url, dynamicSegments);
-        const paramStrings = this.buildQueryParams(queryParams, this.queryParamsConfig);
-        const builtQueryParams = paramStrings.length ? `?${paramStrings.join()}` : '';
-
-        const fetchUrl = `${dynamicUrl}${builtQueryParams}`;
         body = JSON.stringify(body || {});
 
+        const fetchUrl = this.buildRequestUrl(dynamicSegments, queryParams);
         return method === 'post' || method === 'put' ? fetch(fetchUrl, { method, body }) : fetch(fetchUrl);
     }
 }
 
-export class API extends Service {
-    constructor(apiConfig, ...superArgs) {
-        super(...superArgs);
-        this.buildApi(this, apiConfig);
+export class StandardApi {
+    name = 'standard-api'
+    apiConfig = {}
+    variables = {}
+
+    constructor(name, variables, apiConfig) {
+        this.name = name;
+        this.variables = variables;
+        this.apiConfig = apiConfig;
+
+        this.constructApi(apiConfig);
     }
 
-    buildApi(context, apiConfig) {
+    constructApi(apiConfig) {
         if (!apiConfig) {
             throw new Error('Api configuration not specified');
         }
@@ -76,18 +85,51 @@ export class API extends Service {
         for (let apiProperty in apiConfig) {
             const propertyConfig = apiConfig[apiProperty];
 
-
             if (propertyConfig.url) {
-                const endpointProperties = Object.assign({
-                    environmentVariables: this.environmentVariables
-                }, propertyConfig);
-
-                context[apiProperty] = new ApiEndpoint(endpointProperties);
+                Object.defineProperty(this, apiProperty, {
+                    get: () => {
+                        const endpoint = new ApiEndpoint(propertyConfig);
+                        return Object.assign(endpoint, { variables: this.variables });
+                    }
+                });
             } else {
-                context[apiProperty] = {};
-                this.buildApi(context[apiProperty], propertyConfig);
+                this.constructApi({}, propertyConfig);
             }
         }
     }
+
+    lookupVariable(name) {
+        const allVariables = this.variables || {};
+        const value = allVariables[name];
+
+        if (name in allVariables) {
+            return value;
+        }
+
+        throw new Error(`Variable ${name} was not found in api variables`);
+    }
 }
 
+export class StandardApiCollection {
+    name = 'standard-api-collection'
+    apis = []
+    variables = {}
+
+    constructor(name, variables, apis) {
+        this.name = name;
+        this.apis = apis;
+        this.variables = variables;
+
+        this.constructApiCollection(apis);
+    }
+
+    constructApiCollection(apis) {
+        apis.forEach(api => {
+            Object.defineProperty(this, api.name, {
+                get: () => {
+                    return Object.assign({ variables: this.values, api });
+                }
+            });
+        });
+    }
+}
